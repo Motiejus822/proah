@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Wordle</title>
+  <style>
+    body {
+      text-align: center;
+      font-family: Arial, sans-serif;
+    }
+    
+    h1 {
+      color: #333;
+    }
+    
+    .wordle-input {
+      width: 180px;
+      height: 40px;
+      font-size: 20px;
+      text-transform: uppercase;
+      text-align: center;
+      margin-top: 20px;
+    }
+    
+    .wordle-btn {
+      display: inline-block;
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #4CAF50;
+      color: #FFF;
+      border: none;
+      cursor: pointer;
+    }
+    
+    .result {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+    
+    .hidden {
+      display: none;
+    }
+    
+    .correct {
+      color: green;
+    }
+    
+    .incorrect {
+      color: red;
+    }
+  </style>
+</head>
+<body>
+  <h1>Wordle</h1>
+  
+  <div id="wordle-container">
+    <input type="text" id="wordle-input" class="wordle-input" maxlength="5" placeholder="Enter a 5-letter word" />
+    <button id="check-btn" class="wordle-btn">Check</button>
+    <div id="result" class="hidden"></div>
+  </div>
+  
+  <script>
+    var secretWord = generateRandomWord();
+    var attempts = 0;
+    
+    function generateRandomWord() {
+      var words = ["APPLE", "BANAN", "CHICK", "DOUGH", "EAGLE", "FUDGE", "GRAPE", "HUMID", "IVORY", "JOKER"];
+      var randomIndex = Math.floor(Math.random() * words.length);
+      return words[randomIndex];
+    }
+    
+    function checkWord() {
+      var wordInput = document.getElementById("wordle-input").value.toUpperCase();
+      var resultContainer = document.getElementById("result");
+      var resultMessage = "";
+      
+      if (wordInput.length !== 5) {
+        resultMessage = "Please enter a 5-letter word.";
+      } else {
+        attempts++;
+        var correctLetters = 0;
+        
+        for (var i = 0; i < 5; i++) {
+          if (wordInput[i] === secretWord[i]) {
+            correctLetters++;
+          }
+        }
+        
+        if (correctLetters === 5) {
+          resultMessage = "Congratulations! You guessed the word '" + secretWord + "' in " + attempts + " attempts.";
+          document.getElementById("check-btn").disabled = true;
+          document.getElementById("wordle-input").disabled = true;
+        } else {
+          resultMessage = "Correct letters: " + correctLetters + "/5";
+        }
+      }
+      
+      resultContainer.innerHTML = resultMessage;
+      resultContainer.classList.remove("hidden");
+    }
+    
+    document.getElementById("check-btn").addEventListener("click", checkWord);
+  </script>
+</body>
+</html>
