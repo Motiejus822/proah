@@ -1,106 +1,106 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Wordle</title>
-  <style>
-    body {
-      text-align: center;
-      font-family: Arial, sans-serif;
-    }
-    
-    h1 {
-      color: #333;
-    }
-    
-    .wordle-input {
-      width: 180px;
-      height: 40px;
-      font-size: 20px;
-      text-transform: uppercase;
-      text-align: center;
-      margin-top: 20px;
-    }
-    
-    .wordle-btn {
-      display: inline-block;
-      margin-top: 20px;
-      padding: 10px 20px;
-      font-size: 16px;
-      background-color: #4CAF50;
-      color: #FFF;
-      border: none;
-      cursor: pointer;
-    }
-    
-    .result {
-      margin-top: 20px;
-      font-size: 18px;
-      font-weight: bold;
-    }
-    
-    .hidden {
-      display: none;
-    }
-    
-    .correct {
-      color: green;
-    }
-    
-    .incorrect {
-      color: red;
-    }
-  </style>
+    <title>Flappy Bird</title>
+    <style>
+        canvas {
+            border: 1px solid black;
+            display: block;
+            margin: 0 auto;
+        }
+    </style>
 </head>
 <body>
-  <h1>Wordle</h1>
-  
-  <div id="wordle-container">
-    <input type="text" id="wordle-input" class="wordle-input" maxlength="5" placeholder="Enter a 5-letter word" />
-    <button id="check-btn" class="wordle-btn">Check</button>
-    <div id="result" class="hidden"></div>
-  </div>
-  
-  <script>
-    var secretWord = generateRandomWord();
-    var attempts = 0;
-    
-    function generateRandomWord() {
-      var words = ["APPLE", "BANAN", "CHICK", "DOUGH", "EAGLE", "FUDGE", "GRAPE", "HUMID", "IVORY", "JOKER"];
-      var randomIndex = Math.floor(Math.random() * words.length);
-      return words[randomIndex];
-    }
-    
-    function checkWord() {
-      var wordInput = document.getElementById("wordle-input").value.toUpperCase();
-      var resultContainer = document.getElementById("result");
-      var resultMessage = "";
-      
-      if (wordInput.length !== 5) {
-        resultMessage = "Please enter a 5-letter word.";
-      } else {
-        attempts++;
-        var correctLetters = 0;
-        
-        for (var i = 0; i < 5; i++) {
-          if (wordInput[i] === secretWord[i]) {
-            correctLetters++;
-          }
+    <canvas id="gameCanvas" width="400" height="400"></canvas>
+
+    <script>
+        // Initialize the canvas and context
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+
+        // Game variables
+        let birdX = 50;
+        let birdY = canvas.height / 2;
+        let gravity = 1;
+        let velocity = 0;
+        let gap = 85;
+        let pipeX = canvas.width;
+        let pipeWidth = 50;
+        let pipeHeight = 200;
+        let score = 0;
+        let gameOver = false;
+
+        // Bird image
+        const birdImage = new Image();
+        birdImage.src = "bird.png";
+
+        // Pipe image
+        const pipeImage = new Image();
+        pipeImage.src = "pipe.png";
+
+        // Handle key press
+        document.addEventListener("keydown", () => {
+            if (!gameOver) {
+                velocity -= 20;
+            } else {
+                resetGame();
+            }
+        });
+
+        // Game loop
+        function gameLoop() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            if (!gameOver) {
+                // Bird movement
+                velocity += gravity;
+                birdY += velocity;
+
+                // Pipe movement
+                pipeX -= 2;
+
+                // Draw bird
+                ctx.drawImage(birdImage, birdX, birdY, 50, 50);
+
+                // Draw pipes
+                ctx.drawImage(pipeImage, pipeX, 0, pipeWidth, pipeHeight);
+                ctx.drawImage(pipeImage, pipeX, pipeHeight + gap, pipeWidth, canvas.height - pipeHeight - gap);
+
+                // Collision detection
+                if (birdY + 50 > canvas.height || birdY < 0 || (birdX + 50 > pipeX && birdX < pipeX + pipeWidth && (birdY < pipeHeight || birdY + 50 > pipeHeight + gap))) {
+                    gameOver = true;
+                }
+
+                // Update score
+                if (pipeX + pipeWidth < birdX) {
+                    score++;
+                }
+
+                // Display score
+                ctx.font = "20px Arial";
+                ctx.fillText("Score: " + score, 10, 30);
+
+                requestAnimationFrame(gameLoop);
+            } else {
+                // Display game over message
+                ctx.font = "30px Arial";
+                ctx.fillText("Game Over!", canvas.width / 2 - 100, canvas.height / 2);
+                ctx.fillText("Press any key to play again", canvas.width / 2 - 160, canvas.height / 2 + 50);
+            }
         }
-        
-        if (correctLetters === 5) {
-          resultMessage = "Congratulations! You guessed the word '" + secretWord + "' in " + attempts + " attempts.";
-          document.getElementById("check-btn").disabled = true;
-          document.getElementById("wordle-input").disabled = true;
-        } else {
-          resultMessage = "Correct letters: " + correctLetters + "/5";
+
+        // Reset the game
+        function resetGame() {
+            birdY = canvas.height / 2;
+            velocity = 0;
+            pipeX = canvas.width;
+            score = 0;
+            gameOver = false;
+            gameLoop();
         }
-      }
-      
-      resultContainer.innerHTML = resultMessage;
-      resultContainer.classList.remove("hidden");
-    }
-    
-    document.getElementById("check-btn").addEventListener("click", checkWord);
-  </script>
+
+        // Start the game loop
+        gameLoop();
+    </script>
 </body>
 </html>
